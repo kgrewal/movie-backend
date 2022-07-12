@@ -9,15 +9,18 @@ from psycopg2 import *
 import math
 from dotenv import load_dotenv
 from os import environ 
+import os 
 
 load_dotenv('.env')
 BASE_URL=environ.get('BASE_URL')
-DB_CONFIG=environ.get('DB_CONFIG')
+# DB_CONFIG=environ.get('DB_CONFIG')
+
+DB_URI=environ.get('DB_URI')
 
 @bp.route('/search_movies', methods=['GET'])
 def search_movies():
     try:
-        connection = psycopg2.connect(DB_CONFIG)
+        connection = psycopg2.connect(DB_URI)
         cursor = connection.cursor()
         query = request.args['title']
         page = request.args['page']
@@ -48,7 +51,7 @@ def search_movies():
 def movie_details():
     try:
         connection = None
-        connection = psycopg2.connect(DB_CONFIG)
+        connection = psycopg2.connect(DB_URI)
         cursor = connection.cursor()
         query = request.args['id']
         response = requests.request("GET", BASE_URL + '&i=' + query)
@@ -67,7 +70,7 @@ def movie_details():
 @bp.route('/like_movie', methods=['POST'])
 def like_movie():
     try:
-        connection = psycopg2.connect(DB_CONFIG)
+        connection = psycopg2.connect(DB_URI)
         cursor = connection.cursor()
         movie_id = request.args['id']
         postgres_update_query = "UPDATE movies SET liked = %s WHERE id = %s"
@@ -88,7 +91,7 @@ def like_movie():
 @bp.route('/unlike_movie', methods=['POST'])
 def unlike_movie():
     try:
-        connection = psycopg2.connect(DB_CONFIG)
+        connection = psycopg2.connect(DB_URI)
         cursor = connection.cursor()
         movie_id = request.args['id']
         postgres_update_query = "UPDATE movies SET liked = %s WHERE id = %s"
@@ -109,7 +112,7 @@ def unlike_movie():
 @bp.route('/get_liked_movies', methods=['GET'])
 def get_liked_movies():
     try:
-        connection = psycopg2.connect(DB_CONFIG)
+        connection = psycopg2.connect(DB_URI)
         cursor = connection.cursor()
         select_query = "SELECT * FROM movies WHERE liked = true"
         cursor.execute(select_query)
